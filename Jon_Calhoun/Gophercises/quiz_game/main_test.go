@@ -1,4 +1,4 @@
-package main
+package quiz
 
 // Naming conventions:
 //
@@ -30,6 +30,10 @@ package main
 // Error = Log + Fail
 // Fatal = Log + FailNow
 
+// Examples
+// the "Output:" comment tells Go what output to expect
+// use "Unordered output:" for unordered outputs
+
 import (
 	"fmt"
 	"testing"
@@ -56,8 +60,6 @@ func areEqual(a, b [][]string) bool {
 	return true
 }
 
-// Examples don't use the testing t.Testing package
-// the Output comment tells Go what should be outputted
 func ExampleRetrieveProblems() {
 	file := "problems_test.csv"
 	gotProblems, err := RetrieveProblems(file)
@@ -65,7 +67,6 @@ func ExampleRetrieveProblems() {
 		panic(err)
 	}
 	fmt.Printf("%v\n", gotProblems)
-
 	// Output:
 	// [[5+3 8]]
 }

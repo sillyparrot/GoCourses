@@ -1,4 +1,8 @@
-package main
+// Package quiz creates a quiz based on the given csv file (default is problems.csv).
+// The user will have to answer the questions one by one.
+// The user can choose to shuffle the questions and to have a time limit.
+// At the end of the quiz, the time elapsed and the number of questions correct will be shown.
+package quiz
 
 import (
 	"encoding/csv"
@@ -11,8 +15,8 @@ import (
 	"time"
 )
 
-// RetrieveProblems is used to read a csv file and retrieve two columns from it,
-// question and answer
+// RetrieveProblems is used to read a csv file and retrieve two columns from it.
+// question and answer.
 func RetrieveProblems(filename string) ([][]string, error) {
 	// Open the CSV file
 	file, err := os.Open(filename)
@@ -30,6 +34,7 @@ func RetrieveProblems(filename string) ([][]string, error) {
 	return problems, nil
 }
 
+// Quiz function.
 func Quiz(problems [][]string, shuffle bool, timeout int) {
 	var num_correct int
 
@@ -75,6 +80,7 @@ func Quiz(problems [][]string, shuffle bool, timeout int) {
 	fmt.Printf("\nYou scored %d out of %d\n", num_correct, len(problems))
 }
 
+// main function.
 func main() {
 	filename := flag.String("file", "problems.csv", "csv file containing the problems")
 	timeout := flag.Int("timeout", 0, "the time limit in seconds to complete all problems")
