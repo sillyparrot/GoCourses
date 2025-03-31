@@ -11,17 +11,13 @@ import (
 	"time"
 )
 
-func main() {
-	filename := flag.String("file", "problems.csv", "csv file containing the problems")
-	timeout := flag.Int("timeout", 0, "the time limit in seconds to complete all problems")
-	shuffle := flag.Bool("shuffle", false, "shuffle the questions")
-
-	flag.Parse()
-
+// RetrieveProblems is used to read a csv file and retrieve two columns from it,
+// question and answer
+func RetrieveProblems(filename string) ([][]string, error) {
 	// Open the CSV file
-	file, err := os.Open(*filename)
+	file, err := os.Open(filename)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer file.Close()
 
@@ -29,15 +25,16 @@ func main() {
 	reader := csv.NewReader(file)
 	problems, err := reader.ReadAll()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
+	return problems, nil
+}
 
+func Quiz(problems [][]string, shuffle bool, timeout int) {
 	var num_correct int
-	num_problems := len(problems)
-	problem_num := 1
 
-	if *shuffle {
-		rand.Shuffle(num_problems, func(i, j int) {
+	if shuffle {
+		rand.Shuffle(len(problems), func(i, j int) {
 			problems[i], problems[j] = problems[j], problems[i]
 		})
 	}
@@ -46,20 +43,19 @@ func main() {
 	startTime := time.Now()
 
 	var timer *time.Timer
-	if *timeout != 0 {
-		timer = time.NewTimer(time.Duration(*timeout) * time.Second)
+	if timeout != 0 {
+		timer = time.NewTimer(time.Duration(timeout) * time.Second)
 	}
 
 	// Process each problem
 	go func() {
-		for _, problem := range problems {
+		for i, problem := range problems {
 			var answer string
-			fmt.Printf("Problem #%d: %s=", problem_num, problem[0])
+			fmt.Printf("Problem #%d: %s=", i, problem[0])
 			fmt.Scan(&answer)
 			if strings.TrimSpace(answer) == strings.TrimSpace(problem[1]) {
 				num_correct++
 			}
-			problem_num++
 		}
 		ch_finished <- true
 	}()
@@ -76,6 +72,21 @@ func main() {
 	}():
 	}
 
-	fmt.Printf("\nYou scored %d out of %d\n", num_correct, num_problems)
+	fmt.Printf("\nYou scored %d out of %d\n", num_correct, len(problems))
+}
+
+func main() {
+	filename := flag.String("file", "problems.csv", "csv file containing the problems")
+	timeout := flag.Int("timeout", 0, "the time limit in seconds to complete all problems")
+	shuffle := flag.Bool("shuffle", false, "shuffle the questions")
+
+	flag.Parse()
+
+	problems, err := RetrieveProblems(*filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	Quiz(problems, *shuffle, *timeout)
 
 }
