@@ -36,6 +36,8 @@ package quiz
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"testing"
 )
 
@@ -88,10 +90,27 @@ func TestDeepCopy(t *testing.T) {
 	}
 }
 
-func ExampleQuiz() {
+func ExampleCreateQuiz() {
 	problems := [][]string{{"5+8", "13"}, {"6*3", "18"}}
-	Quiz(problems, false, 0)
+	in, err := os.CreateTemp("", "example")
+	if err != nil {
+		panic(err)
+	}
+	defer os.Remove(in.Name())
 
-	// Output
+	_, err = in.WriteString("13\n" + "18\n")
+	if err != nil {
+		panic(err)
+	}
 
+	_, err = in.Seek(0, io.SeekStart)
+	if err != nil {
+		panic(err)
+	}
+
+	CreateQuiz(in, problems, false, 0)
+	// Output:
+	// Problem #0: 5+8=Problem #1: 6*3=
+	// Complete! Elapsed time: 0.00 seconds
+	// You scored 2 out of 2
 }
